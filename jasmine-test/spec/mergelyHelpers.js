@@ -32,4 +32,19 @@
     return mglyElem;
   };
 
+  window.testingOptions = function(leftText, rightText, other) {
+    var settings = $.extend({
+      change_timeout: 0,
+      resize_timeout: 0,
+      cmsettings: { linenumbers: true },
+      lhs: function (setValue) {
+        setValue(leftText);
+      },
+      rhs: function (setValue) {
+        setValue(rightText);
+      }
+    }, other);
+    return settings;
+  };
+
 }());
