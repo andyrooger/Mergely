@@ -2,29 +2,17 @@ describe('override-diff-behaviour', function() {
   var spiedDiffBehaviors;
   beforeEach(function() {
     // andCallFake breaks constructor functions
-    spyOn(Mgly, 'diff').andReturn({ normal_form: function () { return 'this would be normal form diff'; } });
-    spyOn(Mgly, 'DiffParser').andReturn([{
+    spyOn(MglyDiff, 'diff').andReturn({ normal_form: function () { return 'this would be normal form diff'; } });
+    spyOn(MglyDiff, 'DiffParser').andReturn([{
       'lhs-line-from': 0,
       'lhs-line-to': 0,
       'op': "c",
       'rhs-line-from': 0,
       'rhs-line-to': 0
     }]);
-    spyOn(Mgly, 'LCS').andReturn({ diff: function() {} });
+    spyOn(MglyDiff, 'LCS').andReturn({ diff: function() {} });
 
-    spiedDiffBehaviors = {
-      DiffLines: function(lhs, rhs, settings) {
-        var d = new Mgly.diff(lhs, rhs, settings);
-        return d.normal_form();
-      },
-      DiffChars: function(lhs_line, rhs_line, added, removed, settings) {
-        var lcs = new Mgly.LCS(lhs_line, rhs_line);
-        lcs.diff(added, removed);
-      },
-      Parse: function(diff, settings) {
-        return Mgly.DiffParser(diff);
-      }
-    };
+    spiedDiffBehaviors = $.extend({}, MglyDiff.StockBehavior);
   });
 
   it('should use original diffing behavior (Diff, LCS, DiffParser) by default', function() {
@@ -33,9 +21,9 @@ describe('override-diff-behaviour', function() {
     var mglyElem = createMergely('someid', testingOptions('left text', 'right text'));
     jasmine.Clock.tick(0);
 
-    expect(Mgly.diff).toHaveBeenCalled();
-    expect(Mgly.DiffParser).toHaveBeenCalled();
-    expect(Mgly.LCS).toHaveBeenCalled();
+    expect(MglyDiff.diff).toHaveBeenCalled();
+    expect(MglyDiff.DiffParser).toHaveBeenCalled();
+    expect(MglyDiff.LCS).toHaveBeenCalled();
   });
 
   it('should use the DiffLines function from diff_behavior option when asked to provide a diff', function() {
@@ -47,10 +35,10 @@ describe('override-diff-behaviour', function() {
     );
     jasmine.Clock.tick(0);
 
-    Mgly.diff.reset();
+    MglyDiff.diff.reset();
     diffLinesSpy.reset();
     expect(mglyElem.mergely('diff')).toBe('normal form');
-    expect(Mgly.diff).not.toHaveBeenCalled();
+    expect(MglyDiff.diff).not.toHaveBeenCalled();
     expect(diffLinesSpy).toHaveBeenCalled();
   });
 
@@ -72,8 +60,8 @@ describe('override-diff-behaviour', function() {
     );
     jasmine.Clock.tick(0);
 
-    expect(Mgly.diff).not.toHaveBeenCalled();
-    expect(Mgly.DiffParser).not.toHaveBeenCalled();
+    expect(MglyDiff.diff).not.toHaveBeenCalled();
+    expect(MglyDiff.DiffParser).not.toHaveBeenCalled();
     expect(diffLinesSpy).toHaveBeenCalled();
     expect(parseSpy).toHaveBeenCalled();
 
@@ -97,7 +85,7 @@ describe('override-diff-behaviour', function() {
     );
     jasmine.Clock.tick(0);
 
-    expect(Mgly.LCS).not.toHaveBeenCalled();
+    expect(MglyDiff.LCS).not.toHaveBeenCalled();
     expect(diffCharsSpy).toHaveBeenCalled();
 
     expect(mglyElem.find('.CodeMirror-lines > div > div:not(.CodeMirror-measure) pre .rhs.mergely.ch.a').text()).toBe('ot');
@@ -145,5 +133,14 @@ describe('override-diff-behaviour', function() {
     expect(lineThis).toBe(parseThis);
     expect(parseThis).toBe(charThis);
     expect(charThis).toBe(diff_behavior);
+  });
+
+  it('should use dummy behavior that does nothing if the mergelydiff.js file is not included', function() {
+    // Pretend mglydiff.js is not included
+    var originalMglyDiff = window.MglyDiff;
+    delete window.MglyDiff;
+    var mglyElem = createMergely('someid', testingOptions('some text', 'other text'));
+    expect(mglyElem.mergely('options').diff_behavior._dummyBehavior).toBe(true);
+    window.MglyDiff = originalMglyDiff;
   });
 });
