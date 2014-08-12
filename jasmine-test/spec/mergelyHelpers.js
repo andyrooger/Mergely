@@ -15,4 +15,21 @@
     return sandbox;
   };
 
+  var mergelyHitlist = [];
+  afterEach(function() {
+    for(var i=0; i<mergelyHitlist.length; i++) {
+      mergelyHitlist[i].mergely('destroy');
+    }
+    mergelyHitlist = [];
+  });
+
+  window.createMergely = function(id, options, destroyAfter) {
+    var mglyElem = $('<div>').attr('id', id);
+    getSandbox().append(mglyElem);
+    mglyElem.mergely(options);
+    if(destroyAfter === undefined || destroyAfter)
+      mergelyHitlist.push(mglyElem);
+    return mglyElem;
+  };
+
 }());
