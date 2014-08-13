@@ -57,4 +57,41 @@ describe('additional-highlights', function() {
     mglyElem.mergely('additionalHighlights', highlights);
     expect(mglyElem.mergely('additionalHighlights')).toBe(highlights);
   });
+
+  it('should show highlights in the sidebar on the correct line', function(){
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('line 1\nline 2\nline 3\nline 4', 'line 1\nline 2\nline 3\nline 4', {vpcolor: 'rgba(0,0,0,0)'}));
+    mglyElem.mergely('additionalHighlights', [{'line-from': 1, 'line-to': 1, side: 'lhs', color: 'black'}, {'line-from': 2, 'line-to': 3, side: 'rhs', color: 'pink'}]);
+    mglyElem.mergely('update');
+    jasmine.Clock.tick(0);
+
+    manualConfirmation([
+      {q: 'Is there a black highlight on the left sidebar at line 2?', a: true},
+      {q: 'Is there a pink highlight on the right sidebar from line 3 to 4?', a: true},
+      {q: 'Are there highlights on the sidebar anywhere other than those lines?', a: false}
+    ], mglyElem);
+  });
+
+  it('should show highlights as soon as they are added if autoupdate is true', function(){
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('line 1\nline 2\nline 3\nline 4', 'line 1\nline 2\nline 3\nline 4', {autoupdate: true, vpcolor: 'rgba(0,0,0,0)'}));
+    jasmine.Clock.tick(0);
+    mglyElem.mergely('additionalHighlights', [{'line-from': 1, 'line-to': 1, side: 'lhs'}, {'line-from': 2, 'line-to': 3, side: 'rhs'}]);
+    jasmine.Clock.tick(0);
+
+    manualConfirmation([
+      {q: 'Are there any highlights shown on the sidebar?', a: true}
+    ], mglyElem);
+  });
+
+  it('should default highlight color to settings.hcolor', function(){
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('line 1\nline 2\nline 3\nline 4', 'line 1\nline 2\nline 3\nline 4', {autoupdate: true, hcolor: 'green', vpcolor: 'rgba(0,0,0,0)'}));
+    mglyElem.mergely('additionalHighlights', [{'line-from': 1, 'line-to': 1, side: 'lhs', color: 'black'}, {'line-from': 2, 'line-to': 3, side: 'rhs'}]);
+    jasmine.Clock.tick(0);
+
+    manualConfirmation([
+      {q: 'Is the highlight on the right sidebar green?', a: true}
+    ], mglyElem);
+  });
 });
