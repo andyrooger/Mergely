@@ -21,6 +21,11 @@ describe('colors-from-css', function() {
     styleElem = null;
   });
 
+  it('should take foreground color from an element diff top border color if fgcolor is \'auto\'', function () {
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text', { fgcolor: 'auto' }));
+    expect(mglyElem.mergely('options').fgcolor).toEqual(changeTypeKnownColors);
+  });
+
   ['a', 'c', 'd'].forEach(function (changetype) {
     it('should take changetype ' + changetype + ' foreground color from the class and property specified if it\'s of the form auto:prop:classes', function () {
       var passColors = { a: '#000', c: '#000', d: '#000' };
