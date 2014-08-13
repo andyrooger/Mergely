@@ -48,9 +48,18 @@
     return settings;
   };
 
+  var runManualTests = null;
   window.manualConfirmation = function(questions, elem) {
     // Can't currently think of a better way to test the canvas
     // Probably should be the last thing in a test
+
+    if(runManualTests === null) {
+      runManualTests = confirm('You are about to start the first manual test, so this is your only chance to avoid them. Do you want to proceed with the inclusion of manual tests?');
+    }
+
+    if(runManualTests === false) {
+      return;
+    }
 
     if(elem) elem[0].scrollIntoView();
 
