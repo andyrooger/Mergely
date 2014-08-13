@@ -45,6 +45,7 @@ describe('additional-highlights', function() {
   });
 
   it('should allow setting additional highlights with the additionalHighlights method', function(){
+    jasmine.Clock.useMock(); // Stop the dodgy highlights from breaking after a timeout
     var mglyElem = createMergely('someid', testingOptions('left text', 'right text'));
     var highlights = ['all', 'of', 'these', 'are', 'invalid', 'but', 'not', 'checked'];
     mglyElem.mergely('additionalHighlights', highlights);
@@ -52,6 +53,7 @@ describe('additional-highlights', function() {
   });
 
   it('should allow getting additional highlights from the additionalHighlights method', function(){
+    jasmine.Clock.useMock(); // Stop the dodgy highlights from breaking after a timeout
     var mglyElem = createMergely('someid', testingOptions('left text', 'right text'));
     var highlights = ['all', 'of', 'these', 'are', 'invalid', 'but', 'not', 'checked'];
     mglyElem.mergely('additionalHighlights', highlights);
