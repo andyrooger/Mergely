@@ -44,4 +44,17 @@ describe('additional-highlights', function() {
     expect(leftLine2.top).toBeGreaterThan(rightLine.bottom);
   });
 
+  it('should allow setting additional highlights with the additionalHighlights method', function(){
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text'));
+    var highlights = ['all', 'of', 'these', 'are', 'invalid', 'but', 'not', 'checked'];
+    mglyElem.mergely('additionalHighlights', highlights);
+    expect(mglyElem.data('mergely')._additionalHighlights).toBe(highlights);
+  });
+
+  it('should allow getting additional highlights from the additionalHighlights method', function(){
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text'));
+    var highlights = ['all', 'of', 'these', 'are', 'invalid', 'but', 'not', 'checked'];
+    mglyElem.mergely('additionalHighlights', highlights);
+    expect(mglyElem.mergely('additionalHighlights')).toBe(highlights);
+  });
 });
