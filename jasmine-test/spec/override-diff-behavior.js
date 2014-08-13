@@ -1,7 +1,7 @@
 describe('override-diff-behaviour', function() {
   var spiedDiffBehaviors;
   beforeEach(function() {
-    // andCallFake breaks constructor functions
+    // andCallThrough breaks constructor functions
     spyOn(MglyDiff, 'diff').andReturn({ normal_form: function () { return 'this would be normal form diff'; } });
     spyOn(MglyDiff, 'DiffParser').andReturn([{
       'lhs-line-from': 0,
@@ -20,7 +20,6 @@ describe('override-diff-behaviour', function() {
 
     var mglyElem = createMergely('someid', testingOptions('left text', 'right text'));
     jasmine.Clock.tick(0);
-
     expect(MglyDiff.diff).toHaveBeenCalled();
     expect(MglyDiff.DiffParser).toHaveBeenCalled();
     expect(MglyDiff.LCS).toHaveBeenCalled();
@@ -71,15 +70,17 @@ describe('override-diff-behaviour', function() {
     expect($(lineElems[1]).has('.CodeMirror-linebackground').length).toBeGreaterThan(0);
   });
 
-  it('should use the DiffChars function from diff_behavior option to diff each line if lcs option is on', function() {
+  it('should use the DiffChars function from diff_behavior option to diff each batch of line changes if lcs option is on', function() {
     jasmine.Clock.useMock();
 
-    var diffCharsSpy = jasmine.createSpy('DiffChars').andCallFake(function(l, r, added, removed) {
-      added(0, 2);
-      removed(4, 7);
+    var diffCharsSpy = jasmine.createSpy('DiffChars').andCallFake(function(ls, rs, added, removed) {
+      added(0, 0, 0, 2);
+      removed(0, 4, 0, 7);
+      expect(ls.length).toBe(2);
+      expect(rs.length).toBe(1);
     });
     var mglyElem = createMergely('someid',
-      testingOptions('some text', 'other text', {
+      testingOptions('some text\nother changed line', 'other text', {
         diff_behavior: $.extend(spiedDiffBehaviors, { DiffChars: diffCharsSpy })
       })
     );
