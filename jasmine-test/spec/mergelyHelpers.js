@@ -36,6 +36,7 @@
     var settings = $.extend({
       change_timeout: 0,
       resize_timeout: 0,
+      fadein: false,
       cmsettings: { linenumbers: true },
       lhs: function (setValue) {
         setValue(leftText);
@@ -45,6 +46,42 @@
       }
     }, other);
     return settings;
+  };
+
+  var runManualTests = null;
+  window.manualConfirmation = function(questions, elem) {
+    // Can't currently think of a better way to test the canvas
+    // Probably should be the last thing in a test
+
+    if(runManualTests === null) {
+      runManualTests = confirm('You are about to start the first manual test, so this is your only chance to avoid them. Do you want to proceed with the inclusion of manual tests?');
+    }
+
+    if(runManualTests === false) {
+      return;
+    }
+
+    if(elem) elem[0].scrollIntoView();
+
+    /*
+    var allQs = '';
+    for(var i=0; i<questions.length; i++) allQs += questions[i].q + '\n';
+
+    var wait = null;
+    while(wait === null) {
+      var waitResult = prompt(allQs + 'How many seconds do you want to inspect for?', 10);
+      if(/\d+/.test(waitResult)) wait = parseInt(waitResult, 10);
+    }
+
+    waits(wait*1000);
+    */
+    waits(0);
+    runs(function() {
+      for(var i=0; i<questions.length; i++) {
+        var confirmation = confirm(questions[i].q);
+        expect(questions[i].q + ': ' + confirmation).toBe(questions[i].q + ': ' + questions[i].a);
+      }
+    });
   };
 
 }());
