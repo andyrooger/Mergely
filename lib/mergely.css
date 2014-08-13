@@ -5,6 +5,9 @@
 .mergely-margin { float: left; }
 .mergely-canvas { float: left; width: 28px; }
 
+/* Bootstrap's default border-box sizing breaks CodeMirror and in turn that breaks mergely: https://github.com/marijnh/CodeMirror/issues/1060 */
+.mergely-container, .mergely-container * { -moz-box-sizing: content-box; -ms-box-sizing: content-box; -webkit-box-sizing:content-box; box-sizing: content-box; }
+
 /* resizeable */
 .mergely-resizer { width: 100%; height: 100%; }
 
