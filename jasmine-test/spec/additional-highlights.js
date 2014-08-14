@@ -41,7 +41,7 @@ describe('additional-highlights', function() {
 
     expect(leftLine1.top).toBe(rightLine.top);
     expect(leftLine1.bottom).toBe(rightLine.bottom);
-    expect(leftLine2.top).toBeGreaterThan(rightLine.bottom);
+    expect(leftLine2.top).not.toBeLessThan(rightLine.bottom);
   });
 
   it('should allow setting additional highlights with the additionalHighlights method', function(){
