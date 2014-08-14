@@ -5,23 +5,25 @@ describe('misscaled-sidebar', function() {
     longText += '\nanother line';
   }
 
-  it('should scale the right sidebar correctly when the right side text has many more lines', function () {
+  it('should scale the sidebars correctly when the right side text has many more lines', function () {
     jasmine.Clock.useMock();
     var mglyElem = createMergely('someid', testingOptions('short text', longText));
     jasmine.Clock.tick(0);
 
     manualConfirmation([
+      {q: 'Does the viewport indicator on the left fill the entire height of the sidebar?', a: true},
       {q: 'Does the viewport indicator on the right fill the entire height of the sidebar?', a: false}
     ], mglyElem);
   });
 
-  it('should scale the left sidebar correctly when the left side text has many more lines', function () {
+  it('should scale the sidebars correctly when the left side text has many more lines', function () {
     jasmine.Clock.useMock();
     var mglyElem = createMergely('someid', testingOptions(longText, 'short text'));
     jasmine.Clock.tick(0);
 
     manualConfirmation([
-      {q: 'Does the viewport indicator on the left fill the entire height of the sidebar?', a: false}
+      {q: 'Does the viewport indicator on the left fill the entire height of the sidebar?', a: false},
+      {q: 'Does the viewport indicator on the right fill the entire height of the sidebar?', a: true}
     ], mglyElem);
   });
 
