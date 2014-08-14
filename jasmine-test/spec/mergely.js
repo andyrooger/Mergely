@@ -1,6 +1,6 @@
 describe('mergely', function() {
   it('should be created using elem.mergely()', function() {
-    var mglyElem = $('<div>').attr('id', 'mergelyid');
+    var mglyElem = jQuery('<div>').attr('id', 'mergelyid');
     getSandbox().append(mglyElem);
     mglyElem.mergely();
     expect(mglyElem.find('#mergelyid-editor-lhs').length).toBe(1);
@@ -9,7 +9,7 @@ describe('mergely', function() {
   });
 
   it('should be destroyed using elem.mergely(\'destroy\')', function() {
-    var mglyElem = $('<div>').attr('id', 'mergelyid');
+    var mglyElem = jQuery('<div>').attr('id', 'mergelyid');
     getSandbox().append(mglyElem);
     mglyElem.mergely();
     mglyElem.mergely('destroy');

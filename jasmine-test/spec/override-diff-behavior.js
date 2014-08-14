@@ -12,7 +12,7 @@ describe('override-diff-behaviour', function() {
     }]);
     spyOn(MglyDiff, 'LCS').andReturn({ diff: function() {} });
 
-    spiedDiffBehaviors = $.extend({}, MglyDiff.StockBehavior);
+    spiedDiffBehaviors = jQuery.extend({}, MglyDiff.StockBehavior);
   });
 
   it('should use original diffing behavior (Diff, LCS, DiffParser) by default', function() {
@@ -30,7 +30,7 @@ describe('override-diff-behaviour', function() {
 
     var diffLinesSpy = jasmine.createSpy('DiffLines').andReturn('normal form');
     var mglyElem = createMergely('someid',
-      testingOptions('left text', 'right text', { diff_behavior: $.extend(spiedDiffBehaviors, { DiffLines: diffLinesSpy }) })
+      testingOptions('left text', 'right text', { diff_behavior: jQuery.extend(spiedDiffBehaviors, { DiffLines: diffLinesSpy }) })
     );
     jasmine.Clock.tick(0);
 
@@ -54,7 +54,7 @@ describe('override-diff-behaviour', function() {
         }]);
     var mglyElem = createMergely('someid',
       testingOptions('left text\nline 2', 'right text\nline 2', {
-        diff_behavior: $.extend(spiedDiffBehaviors, { DiffLines: diffLinesSpy, Parse: parseSpy })
+        diff_behavior: jQuery.extend(spiedDiffBehaviors, { DiffLines: diffLinesSpy, Parse: parseSpy })
       })
     );
     jasmine.Clock.tick(0);
@@ -66,8 +66,8 @@ describe('override-diff-behaviour', function() {
 
     var lines = mglyElem.find('#someid-editor-lhs .CodeMirror-lines');
     var lineElems = lines.find('div > div:not([style]):not([class]) > div');
-    expect($(lineElems[0]).has('.CodeMirror-linebackground').length).toBe(0);
-    expect($(lineElems[1]).has('.CodeMirror-linebackground').length).toBeGreaterThan(0);
+    expect(jQuery(lineElems[0]).has('.CodeMirror-linebackground').length).toBe(0);
+    expect(jQuery(lineElems[1]).has('.CodeMirror-linebackground').length).toBeGreaterThan(0);
   });
 
   it('should use the DiffChars function from diff_behavior option to diff each batch of line changes if lcs option is on', function() {
@@ -81,7 +81,7 @@ describe('override-diff-behaviour', function() {
     });
     var mglyElem = createMergely('someid',
       testingOptions('some text\nother changed line', 'other text', {
-        diff_behavior: $.extend(spiedDiffBehaviors, { DiffChars: diffCharsSpy })
+        diff_behavior: jQuery.extend(spiedDiffBehaviors, { DiffChars: diffCharsSpy })
       })
     );
     jasmine.Clock.tick(0);
@@ -99,7 +99,7 @@ describe('override-diff-behaviour', function() {
     var lineSettings, parseSettings, charSettings;
     var mglyElem = createMergely('someid',
       testingOptions('some text', 'other text', {
-        diff_behavior: $.extend({}, spiedDiffBehaviors, {
+        diff_behavior: jQuery.extend({}, spiedDiffBehaviors, {
           DiffLines: function() { lineSettings = arguments[arguments.length-1]; return spiedDiffBehaviors.DiffLines.apply(spiedDiffBehaviors, arguments); },
           Parse: function() { parseSettings = arguments[arguments.length-1]; return spiedDiffBehaviors.Parse.apply(spiedDiffBehaviors, arguments); },
           DiffChars: function() { charSettings = arguments[arguments.length-1]; return spiedDiffBehaviors.DiffChars.apply(spiedDiffBehaviors, arguments); }
@@ -118,7 +118,7 @@ describe('override-diff-behaviour', function() {
     jasmine.Clock.useMock();
 
     var lineThis, parseThis, charThis;
-    var diff_behavior = $.extend({}, spiedDiffBehaviors, {
+    var diff_behavior = jQuery.extend({}, spiedDiffBehaviors, {
       DiffLines: function() { lineThis = this; return spiedDiffBehaviors.DiffLines.apply(spiedDiffBehaviors, arguments); },
       Parse: function() { parseThis = this; return spiedDiffBehaviors.Parse.apply(spiedDiffBehaviors, arguments); },
       DiffChars: function() { charThis = this; return spiedDiffBehaviors.DiffChars.apply(spiedDiffBehaviors, arguments); }

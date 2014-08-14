@@ -13,7 +13,7 @@ describe('colors-from-css', function() {
       style += '.mergely.lhs.start.' + cls + ' { border-top-color: ' + changeTypeKnownColors[cls] + ' }'
     }
     style += '.some.test.color { background-color: ' + testColor + ' }';
-    styleElem = $('<style>').text(style);
+    styleElem = jQuery('<style>').text(style);
     getSandbox().append(styleElem);
   });
   afterEach(function() {

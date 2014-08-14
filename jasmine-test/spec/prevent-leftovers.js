@@ -12,20 +12,20 @@ describe('prevent-leftovers', function() {
   });
 
   it('should not leave extra markup in the page after being destroyed and removed', function() {
-    var initialHead = $('head').html();
+    var initialHead = jQuery('head').html();
     var initialSandbox = getSandbox().html();
     var mglyElem = createMergely('someid', {}, false);
     mglyElem.mergely('destroy');
     mglyElem.remove();
-    expect($('head').html()).toBe(initialHead);
+    expect(jQuery('head').html()).toBe(initialHead);
     expect(getSandbox().html()).toBe(initialSandbox);
   });
 
   it('should not leave jquery events behind after being destroyed and removed, even with autoresize on', function(){
-    expect(Object.getOwnPropertyNames($.cache).length).toBe(0);
+    expect(Object.getOwnPropertyNames(jQuery.cache).length).toBe(0);
     var mglyElem = createMergely('someid', { autoresize: true }, false);
     mglyElem.mergely('destroy');
     mglyElem.remove();
-    expect(Object.getOwnPropertyNames($.cache).length).toBe(0);
+    expect(Object.getOwnPropertyNames(jQuery.cache).length).toBe(0);
   });
 });

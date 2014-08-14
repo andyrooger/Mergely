@@ -3,7 +3,7 @@
   var sandbox;
 
   beforeEach(function() {
-    sandbox = $('<div>').appendTo(document.body);
+    sandbox = jQuery('<div>').appendTo(document.body);
   });
 
   afterEach(function() {
@@ -24,7 +24,7 @@
   });
 
   window.createMergely = function(id, options, destroyAfter) {
-    var mglyElem = $('<div>').attr('id', id);
+    var mglyElem = jQuery('<div>').attr('id', id);
     getSandbox().append(mglyElem);
     mglyElem.mergely(options);
     if(destroyAfter === undefined || destroyAfter)
@@ -33,7 +33,7 @@
   };
 
   window.testingOptions = function(leftText, rightText, other) {
-    var settings = $.extend({
+    var settings = jQuery.extend({
       change_timeout: 0,
       resize_timeout: 0,
       fadein: false,
