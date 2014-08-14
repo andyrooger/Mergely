@@ -35,6 +35,7 @@
   window.testingOptions = function(leftText, rightText, other) {
     var settings = jQuery.extend({
       change_timeout: 0,
+      layout_change_timeout: 0,
       resize_timeout: 0,
       fadein: false,
       cmsettings: { linenumbers: true },
@@ -82,6 +83,12 @@
         expect(questions[i].q + ': ' + confirmation).toBe(questions[i].q + ': ' + questions[i].a);
       }
     });
+  };
+  
+  window.getMergelyLine = function(mglyElem, side, lineNumber) {
+    // Must have line numbers on
+    var editorLines = mglyElem.find('#someid-editor-' + side + ' .CodeMirror-lines > div > div:not([class]):not([style]) > div');
+    return editorLines.has('.CodeMirror-linenumber:contains(' + lineNumber + ')');
   };
 
 }());
