@@ -213,4 +213,18 @@ describe('performance-improvements', function() {
       { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
     ], mglyElem);
   });
+  
+  it('should not throw errors when resize is called before update', function(){
+    // Jasmine mock clock unhelpfully swallows errors
+    //jasmine.Clock.useMock();
+    var errors = [];
+    window.onerror = function(msg, url, line, col, error){ errors.push(error); }
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {autoupdate: false, autoresize: false}));
+    mglyElem.mergely('resize');
+    mglyElem.mergely('update');
+    waits(0);
+    runs(function(){
+      expect(errors.length).toBe(0);
+    });
+  });
 });
