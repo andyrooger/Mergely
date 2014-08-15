@@ -35,6 +35,7 @@
   window.testingOptions = function(leftText, rightText, other) {
     var settings = jQuery.extend({
       change_timeout: 0,
+      layout_change_timeout: 0,
       resize_timeout: 0,
       fadein: false,
       cmsettings: { linenumbers: true },
