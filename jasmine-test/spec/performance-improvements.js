@@ -163,4 +163,54 @@ describe('performance-improvements', function() {
     });
   });
 
+  it('should keep the canvas drawing in sync while scrolling even when autoupdate is false', function() {
+    var longText = 'line';
+    for(var i=0; i<250; i++) longText += '\nline';
+    longText += '\nsame';
+    for(var i=0; i<250; i++) longText += '\nline';
+    
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions(longText, 'same', {autoupdate: false}));
+    mglyElem.mergely('update'); // Need to do this manually if autoupdate is off
+    jasmine.Clock.tick(0);
+    
+    // Fake a scroll (happens asynchronously :( no matter what we tell jasmine to do)
+    mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
+    mglyElem.find('#someid-editor-lhs .CodeMirror-scroll').trigger('scroll');
+
+    waits(1);
+    runs(function(){
+      // Event should have fired, it actual work will happen after a mergely timeout
+      jasmine.Clock.tick(0);
+      
+      manualConfirmation([
+        { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
+        { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
+      ], mglyElem);
+    });
+  });
+  
+  it('should keep the canvas drawing in sync while resizing due to autoresize even when autoupdate is false', function() {
+    var longText = 'line';
+    for(var i=0; i<250; i++) longText += '\nline';
+    longText += '\nsame';
+    for(var i=0; i<250; i++) longText += '\nline';
+    
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions(longText, 'same', {autoupdate: false, autoresize: true, height: 200, width: 'auto'}));
+    mglyElem.mergely('update'); // Need to do this manually if autoupdate is off
+    jasmine.Clock.tick(0);
+    
+    // Move to unchanged line
+    mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
+    
+    getSandbox().css({ height: '400px', minHeight: '400px', maxHeight: '400px' });
+    jQuery(window).resize();
+    jasmine.Clock.tick(0);
+      
+    manualConfirmation([
+      { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
+      { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
+    ], mglyElem);
+  });
 });
