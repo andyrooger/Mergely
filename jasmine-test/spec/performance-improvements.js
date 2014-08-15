@@ -184,6 +184,8 @@ describe('performance-improvements', function() {
     
     // Move to unchanged line
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
+    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
+    jasmine.Clock.tick(0);
     
     getSandbox().css({ height: '400px', minHeight: '400px', maxHeight: '400px' });
     jQuery(window).resize();
@@ -207,5 +209,54 @@ describe('performance-improvements', function() {
     runs(function(){
       expect(errors.length).toBe(0);
     });
+  });
+  
+  it('should count change as inside the viewport if it\'s completely inside', function(){
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {viewport: true}));
+    var inside = mglyElem.mergely('_is_change_in_view', {from: 10, to: 20}, {'lhs-line-from': 15, 'lhs-line-to': 16, 'rhs-line-from': 100, 'rhs-line-to': 100});
+    expect(inside).toBe(true);
+  });
+  
+  it('should count change as inside the viewport if it overlaps the top edge', function(){
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {viewport: true}));
+    var inside = mglyElem.mergely('_is_change_in_view', {from: 10, to: 20}, {'lhs-line-from': 5, 'lhs-line-to': 15, 'rhs-line-from': 100, 'rhs-line-to': 100});
+    expect(inside).toBe(true);
+  });
+  
+  it('should count change as inside the viewport if it overlaps the bottom edge', function(){
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {viewport: true}));
+    var inside = mglyElem.mergely('_is_change_in_view', {from: 10, to: 20}, {'lhs-line-from': 15, 'lhs-line-to': 25, 'rhs-line-from': 100, 'rhs-line-to': 100});
+    expect(inside).toBe(true);
+  });
+  
+  it('should count change as outside the viewport if it is completely above', function(){
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {viewport: true}));
+    var inside = mglyElem.mergely('_is_change_in_view', {from: 10, to: 20}, {'lhs-line-from': 5, 'lhs-line-to': 6, 'rhs-line-from': 100, 'rhs-line-to': 100});
+    expect(inside).toBe(false);
+  });
+  
+  it('should count change as outside the viewport if it is completely below', function(){
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {viewport: true}));
+    var inside = mglyElem.mergely('_is_change_in_view', {from: 10, to: 20}, {'lhs-line-from': 25, 'lhs-line-to': 26, 'rhs-line-from': 100, 'rhs-line-to': 100});
+    expect(inside).toBe(false);
+  });
+  
+  it('should count change as inside the viewport if just the left side is in', function(){
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {viewport: true}));
+    var inside = mglyElem.mergely('_is_change_in_view', {from: 10, to: 20}, {'lhs-line-from': 15, 'lhs-line-to': 16, 'rhs-line-from': 100, 'rhs-line-to': 100});
+    expect(inside).toBe(true);
+  });
+  
+  it('should count change as inside the viewport if just the right side is in', function(){
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {viewport: true}));
+    var inside = mglyElem.mergely('_is_change_in_view', {from: 10, to: 20}, {'lhs-line-from': 100, 'lhs-line-to': 100, 'rhs-line-from': 15, 'rhs-line-to': 16});
+    expect(inside).toBe(true);
   });
 });
