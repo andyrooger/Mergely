@@ -91,13 +91,16 @@ describe('performance-improvements', function() {
     
     // Fake a scroll
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
-    jasmine.Clock.tick(0);
+    
+    waits(0); // Scroll event is async
+    runs(function() {
+      jasmine.Clock.tick(0);
       
-    manualConfirmation([
-      { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
-      { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
-    ], mglyElem);
+      manualConfirmation([
+        { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
+        { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
+      ], mglyElem);
+    });
   });
   
   it('should not re-diff the editor contents if autoupdate is on and an editor is scrolled', function(){
@@ -113,10 +116,13 @@ describe('performance-improvements', function() {
     
     // Fake a scroll
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
-    jasmine.Clock.tick(0);
     
-    expect(noDiffBehaviour.spy).not.toHaveBeenCalled();
+    waits(0); // Scroll event is async
+    runs(function() {
+      jasmine.Clock.tick(0);
+    
+      expect(noDiffBehaviour.spy).not.toHaveBeenCalled();
+    });
   });
   
   it('should only redraw the gutters and sidebars once if multiple actions cause redraw in the same callstack', function(){
@@ -141,12 +147,15 @@ describe('performance-improvements', function() {
     
     // Fake a scroll
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
-    expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(0);
     
-    jasmine.Clock.tick(10);
-    expect(mglyElem.data('mergely')._draw_diff).toHaveBeenCalled();
-    expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(1);
+    waits(0); // Scroll event is async
+    runs(function() {
+      expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(0);
+    
+      jasmine.Clock.tick(10);
+      expect(mglyElem.data('mergely')._draw_diff).toHaveBeenCalled();
+      expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(1);
+    });
   });
 
   it('should keep the canvas drawing in sync while scrolling even when autoupdate is false', function() {
@@ -162,13 +171,16 @@ describe('performance-improvements', function() {
     
     // Fake a scroll
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
-    jasmine.Clock.tick(0);
     
-    manualConfirmation([
-      { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
-      { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
-    ], mglyElem);
+    waits(0); // Scroll event is async
+    runs(function() {
+      jasmine.Clock.tick(0);
+    
+      manualConfirmation([
+        { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
+        { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
+      ], mglyElem);
+    });
   });
   
   it('should keep the canvas drawing in sync while resizing due to autoresize even when autoupdate is false', function() {
@@ -184,17 +196,20 @@ describe('performance-improvements', function() {
     
     // Move to unchanged line
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
-    jasmine.Clock.tick(0);
     
-    getSandbox().css({ height: '400px', minHeight: '400px', maxHeight: '400px' });
-    jQuery(window).resize();
-    jasmine.Clock.tick(0);
+    waits(0); // Scroll event is async
+    runs(function() {
+      jasmine.Clock.tick(0);
+    
+      getSandbox().css({ height: '400px', minHeight: '400px', maxHeight: '400px' });
+      jQuery(window).resize();
+      jasmine.Clock.tick(0);
       
-    manualConfirmation([
-      { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
-      { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
-    ], mglyElem);
+      manualConfirmation([
+        { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
+        { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
+      ], mglyElem);
+    });
   });
   
   it('should not throw errors when resize is called before update', function(){
@@ -276,10 +291,13 @@ describe('performance-improvements', function() {
     
     // Move to unchanged line
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 355, ch: 0});
-    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
-    jasmine.Clock.tick(0);
     
-    expect(getMergelyLine(mglyElem, 'lhs', 355).find('pre span').length).toBeGreaterThan(0); // span in pre means it's marked up
+    waits(0); // Scroll event is async
+    runs(function() {
+      jasmine.Clock.tick(0);
+    
+      expect(getMergelyLine(mglyElem, 'lhs', 355).find('pre span').length).toBeGreaterThan(0); // span in pre means it's marked up
+    });
   });
   
   it('should mark up changes when scrolled to a particular line with viewport turned on', function(){
@@ -298,10 +316,13 @@ describe('performance-improvements', function() {
     
     // Move to unchanged line
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 355, ch: 0});
-    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
-    jasmine.Clock.tick(0);
     
-    expect(getMergelyLine(mglyElem, 'lhs', 355).find('pre span').length).toBeGreaterThan(0); // span in pre means it's marked up
+    waits(0); // Scroll event is async
+    runs(function() {
+      jasmine.Clock.tick(0);
+    
+      expect(getMergelyLine(mglyElem, 'lhs', 355).find('pre span').length).toBeGreaterThan(0); // span in pre means it's marked up
+    });
   });
   
   it('should not re-markup changes when scrolling with viewport off', function(){
@@ -319,9 +340,12 @@ describe('performance-improvements', function() {
     
     // Scrolling
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
-    jasmine.Clock.tick(0);
     
-    expect(mglyElem.data('mergely')._markup_changes).not.toHaveBeenCalled();
+    waits(0); // Scroll event is async
+    runs(function() {
+      jasmine.Clock.tick(0);
+    
+      expect(mglyElem.data('mergely')._markup_changes).not.toHaveBeenCalled();
+    });
   });
 });
