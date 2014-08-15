@@ -89,20 +89,15 @@ describe('performance-improvements', function() {
     var mglyElem = createMergely('someid', testingOptions(longText, 'same', {autoupdate: true}));
     jasmine.Clock.tick(0);
     
-    // Fake a scroll (happens asynchronously :( no matter what we tell jasmine to do)
+    // Fake a scroll
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    mglyElem.find('#someid-editor-lhs .CodeMirror-scroll').trigger('scroll');
-
-    waits(1);
-    runs(function(){
-      // Event should have fired, it actual work will happen after a mergely timeout
-      jasmine.Clock.tick(0);
+    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
+    jasmine.Clock.tick(0);
       
-      manualConfirmation([
-        { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
-        { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
-      ], mglyElem);
-    });
+    manualConfirmation([
+      { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
+      { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
+    ], mglyElem);
   });
   
   it('should not re-diff the editor contents if autoupdate is on and an editor is scrolled', function(){
@@ -116,16 +111,12 @@ describe('performance-improvements', function() {
     jasmine.Clock.tick(0);
     noDiffBehaviour.spy.reset();
     
-    // Fake a scroll (happens asynchronously :( no matter what we tell jasmine to do)
+    // Fake a scroll
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    mglyElem.find('#someid-editor-lhs .CodeMirror-scroll').trigger('scroll');
-
-    waits(1);
-    runs(function(){
-      // Event should have fired, it actual work will happen after a mergely timeout
-      jasmine.Clock.tick(0);
-      expect(noDiffBehaviour.spy).not.toHaveBeenCalled();
-    });
+    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
+    jasmine.Clock.tick(0);
+    
+    expect(noDiffBehaviour.spy).not.toHaveBeenCalled();
   });
   
   it('should only redraw the gutters and sidebars once if multiple actions cause redraw in the same callstack', function(){
@@ -148,19 +139,14 @@ describe('performance-improvements', function() {
     mglyElem.mergely('resize');
     expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(0);
     
-    // Fake a scroll (happens asynchronously :( no matter what we tell jasmine to do)
+    // Fake a scroll
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    mglyElem.find('#someid-editor-lhs .CodeMirror-scroll').trigger('scroll');
+    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
     expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(0);
-
-    waits(1);
-    runs(function(){
-      expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(0);
-      // Event should have fired, it actual work will happen after a mergely timeout
-      jasmine.Clock.tick(10);
-      expect(mglyElem.data('mergely')._draw_diff).toHaveBeenCalled();
-      expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(1);
-    });
+    
+    jasmine.Clock.tick(10);
+    expect(mglyElem.data('mergely')._draw_diff).toHaveBeenCalled();
+    expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(1);
   });
 
   it('should keep the canvas drawing in sync while scrolling even when autoupdate is false', function() {
@@ -174,20 +160,15 @@ describe('performance-improvements', function() {
     mglyElem.mergely('update'); // Need to do this manually if autoupdate is off
     jasmine.Clock.tick(0);
     
-    // Fake a scroll (happens asynchronously :( no matter what we tell jasmine to do)
+    // Fake a scroll
     mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    mglyElem.find('#someid-editor-lhs .CodeMirror-scroll').trigger('scroll');
-
-    waits(1);
-    runs(function(){
-      // Event should have fired, it actual work will happen after a mergely timeout
-      jasmine.Clock.tick(0);
-      
-      manualConfirmation([
-        { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
-        { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
-      ], mglyElem);
-    });
+    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
+    jasmine.Clock.tick(0);
+    
+    manualConfirmation([
+      { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
+      { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
+    ], mglyElem);
   });
   
   it('should keep the canvas drawing in sync while resizing due to autoresize even when autoupdate is false', function() {
