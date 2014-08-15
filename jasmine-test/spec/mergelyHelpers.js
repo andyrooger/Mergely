@@ -84,5 +84,11 @@
       }
     });
   };
+  
+  window.getMergelyLine = function(mglyElem, side, lineNumber) {
+    // Must have line numbers on
+    var editorLines = mglyElem.find('#someid-editor-' + side + ' .CodeMirror-lines > div > div:not([class]):not([style]) > div');
+    return editorLines.has('.CodeMirror-linenumber:contains(' + lineNumber + ')');
+  };
 
 }());

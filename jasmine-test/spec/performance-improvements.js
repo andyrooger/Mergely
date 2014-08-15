@@ -81,7 +81,7 @@ describe('performance-improvements', function() {
   
   it('should redraw correctly aligned sidebars and centre gutter if autoupdate is on and an editor is scrolled', function(){
     var longText = 'line';
-    for(var i=0; i<250; i++) longText += '\nline';
+    for(var i=0; i<249; i++) longText += '\nline';
     longText += '\nsame';
     for(var i=0; i<250; i++) longText += '\nline';
     
@@ -102,7 +102,7 @@ describe('performance-improvements', function() {
   
   it('should not re-diff the editor contents if autoupdate is on and an editor is scrolled', function(){
     var longText = 'line';
-    for(var i=0; i<250; i++) longText += '\nline';
+    for(var i=0; i<249; i++) longText += '\nline';
     longText += '\nsame';
     for(var i=0; i<250; i++) longText += '\nline';
     
@@ -121,7 +121,7 @@ describe('performance-improvements', function() {
   
   it('should only redraw the gutters and sidebars once if multiple actions cause redraw in the same callstack', function(){
     var longText = 'line';
-    for(var i=0; i<250; i++) longText += '\nline';
+    for(var i=0; i<249; i++) longText += '\nline';
     longText += '\nsame';
     for(var i=0; i<250; i++) longText += '\nline';
     
@@ -151,7 +151,7 @@ describe('performance-improvements', function() {
 
   it('should keep the canvas drawing in sync while scrolling even when autoupdate is false', function() {
     var longText = 'line';
-    for(var i=0; i<250; i++) longText += '\nline';
+    for(var i=0; i<249; i++) longText += '\nline';
     longText += '\nsame';
     for(var i=0; i<250; i++) longText += '\nline';
     
@@ -173,7 +173,7 @@ describe('performance-improvements', function() {
   
   it('should keep the canvas drawing in sync while resizing due to autoresize even when autoupdate is false', function() {
     var longText = 'line';
-    for(var i=0; i<250; i++) longText += '\nline';
+    for(var i=0; i<249; i++) longText += '\nline';
     longText += '\nsame';
     for(var i=0; i<250; i++) longText += '\nline';
     
@@ -258,5 +258,70 @@ describe('performance-improvements', function() {
     var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {viewport: true}));
     var inside = mglyElem.mergely('_is_change_in_view', {from: 10, to: 20}, {'lhs-line-from': 100, 'lhs-line-to': 100, 'rhs-line-from': 15, 'rhs-line-to': 16});
     expect(inside).toBe(true);
+  });
+  
+  it('should mark up changes when scrolled to a particular line with viewport turned off', function(){
+    var sharedText = 'same';
+    for(var i=0; i<99; i++) sharedText += '\nsame';
+    var longText = 'line';
+    for(var i=0; i<249; i++) longText += '\nline';
+    longText += '\n' + sharedText;
+    for(var i=0; i<250; i++) longText += '\nline';
+    
+    // delete: lhs (1->250) rhs (0->0), unchanged: lhs (251->350) rhs (1->100), delete lhs (351->600) rhs (101->101)
+    // Long unchanged block makes sure that the second delete is outside of the initial viewport and so not rendered in the initial diff
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions(longText, sharedText, {viewport: false}));
+    jasmine.Clock.tick(0);
+    
+    // Move to unchanged line
+    mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 355, ch: 0});
+    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
+    jasmine.Clock.tick(0);
+    
+    expect(getMergelyLine(mglyElem, 'lhs', 355).find('pre span').length).toBeGreaterThan(0); // span in pre means it's marked up
+  });
+  
+  it('should mark up changes when scrolled to a particular line with viewport turned on', function(){
+    var sharedText = 'same';
+    for(var i=0; i<99; i++) sharedText += '\nsame';
+    var longText = 'line';
+    for(var i=0; i<249; i++) longText += '\nline';
+    longText += '\n' + sharedText;
+    for(var i=0; i<250; i++) longText += '\nline';
+    
+    // delete: lhs (1->250) rhs (0->0), unchanged: lhs (251->350) rhs (1->100), delete lhs (351->600) rhs (101->101)
+    // Long unchanged block makes sure that the second delete is outside of the initial viewport and so not rendered in the initial diff
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions(longText, sharedText, {viewport: true}));
+    jasmine.Clock.tick(0);
+    
+    // Move to unchanged line
+    mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 355, ch: 0});
+    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
+    jasmine.Clock.tick(0);
+    
+    expect(getMergelyLine(mglyElem, 'lhs', 355).find('pre span').length).toBeGreaterThan(0); // span in pre means it's marked up
+  });
+  
+  it('should not re-markup changes when scrolling with viewport off', function(){
+    var longText = 'line';
+    for(var i=0; i<249; i++) longText += '\nline';
+    longText += '\nsame';
+    for(var i=0; i<250; i++) longText += '\nline';
+    
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions(longText, 'same', {viewport: false}));
+    mglyElem.mergely('update'); // Need to do this manually if autoupdate is off
+    jasmine.Clock.tick(0);
+    
+    spyOn(mglyElem.data('mergely'), '_markup_changes');
+    
+    // Scrolling
+    mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
+    CodeMirror.signal(mglyElem.mergely('cm', 'lhs'), 'scroll');
+    jasmine.Clock.tick(0);
+    
+    expect(mglyElem.data('mergely')._markup_changes).not.toHaveBeenCalled();
   });
 });
