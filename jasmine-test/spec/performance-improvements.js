@@ -145,17 +145,9 @@ describe('performance-improvements', function() {
     mglyElem.mergely('resize');
     expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(0);
     
-    // Fake a scroll
-    mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
-    
-    waits(0); // Scroll event is async
-    runs(function() {
-      expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(0);
-    
-      jasmine.Clock.tick(10);
-      expect(mglyElem.data('mergely')._draw_diff).toHaveBeenCalled();
-      expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(1);
-    });
+    jasmine.Clock.tick(10);
+    expect(mglyElem.data('mergely')._draw_diff).toHaveBeenCalled();
+    expect(mglyElem.data('mergely')._draw_diff.calls.length).toBe(1);
   });
 
   it('should keep the canvas drawing in sync while scrolling even when autoupdate is false', function() {
@@ -350,18 +342,66 @@ describe('performance-improvements', function() {
   });
 
   it('should allow changing the height of the page above the mergely element without misaligning the canvases', function() {
-	jasmine.Clock.useMock();
+    jasmine.Clock.useMock();
     var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {autoupdate: true, autoresize: true}));
     jasmine.Clock.tick(0);
     
-	$('<div>').css({width: '10px', height: '60px'}).prependTo(getSandbox());
-	
+    $('<div>').css({width: '10px', height: '60px'}).prependTo(getSandbox());
+
     jQuery(window).resize();
     jasmine.Clock.tick(0);
-	
-	manualConfirmation([
+
+    manualConfirmation([
         { q: 'Do the bars in the document maps in the left and right margins line up with the changes at the top of the editors', a: true },
         { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
       ], mglyElem);
+  });
+  
+  it('should redraw canvas synchronously as the editor is scrolled', function(){
+    var longText = 'line';
+    for(var i=0; i<249; i++) longText += '\nline';
+    longText += '\nsame';
+    for(var i=0; i<250; i++) longText += '\nline';
+    
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions(longText, 'same', {autoupdate: false}));
+    mglyElem.mergely('update'); // Need to do this manually if autoupdate is off
+    jasmine.Clock.tick(0);
+    
+    // Fake a scroll
+    mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
+    
+    waits(0); // Scroll event is async
+    runs(function() {
+      //jasmine.Clock.tick(0); // Don't tick to allow a setTimeout from the scroll event
+    
+      manualConfirmation([
+        { q: 'Does the left sidebar show the viewport around the middle of the bar?', a: true },
+        { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
+      ], mglyElem);
+    });
+  });
+  
+  it('should not recalculate offsets for changes as the editor is scrolled', function() {
+    var longText = 'line';
+    for(var i=0; i<249; i++) longText += '\nline';
+    longText += '\nsame';
+    for(var i=0; i<250; i++) longText += '\nline';
+    
+    jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions(longText, 'same', {autoupdate: false}));
+    mglyElem.mergely('update'); // Need to do this manually if autoupdate is off
+    jasmine.Clock.tick(0);
+    
+    spyOn(mglyElem.data('mergely'), '_calculate_offsets');
+    
+    // Fake a scroll
+    mglyElem.mergely('cm', 'lhs').scrollIntoView({line: 251, ch: 0});
+    
+    waits(0); // Scroll event is async
+    runs(function() {
+      jasmine.Clock.tick(0);
+      expect(mglyElem.data('mergely')._calculate_offsets).not.toHaveBeenCalled();
+    });
   });
 });
