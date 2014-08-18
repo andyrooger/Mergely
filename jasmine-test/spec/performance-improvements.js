@@ -348,4 +348,20 @@ describe('performance-improvements', function() {
       expect(mglyElem.data('mergely')._markup_changes).not.toHaveBeenCalled();
     });
   });
+
+  it('should allow changing the height of the page above the mergely element without misaligning the canvases', function() {
+	jasmine.Clock.useMock();
+    var mglyElem = createMergely('someid', testingOptions('left text', 'right text', {autoupdate: true, autoresize: true}));
+    jasmine.Clock.tick(0);
+    
+	$('<div>').css({width: '10px', height: '60px'}).prependTo(getSandbox());
+	
+    jQuery(window).resize();
+    jasmine.Clock.tick(0);
+	
+	manualConfirmation([
+        { q: 'Do the bars in the document maps in the left and right margins line up with the changes at the top of the editors', a: true },
+        { q: 'Do the lines in the center canvas line up with the changes on the left and right?', a: true }
+      ], mglyElem);
+  });
 });
