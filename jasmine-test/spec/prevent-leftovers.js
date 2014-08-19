@@ -22,10 +22,18 @@ describe('prevent-leftovers', function() {
   });
 
   it('should not leave jquery events behind after being destroyed and removed, even with autoresize on', function(){
-    expect(Object.getOwnPropertyNames(jQuery.cache).length).toBe(0);
+    jQuery('*').add(window).add(document).each(function () {
+      var events = jQuery._data(this, 'events') || {};
+      expect(Object.keys(events).length).toBe(0);
+    });
+
     var mglyElem = createMergely('someid', { autoresize: true }, false);
     mglyElem.mergely('destroy');
     mglyElem.remove();
-    expect(Object.getOwnPropertyNames(jQuery.cache).length).toBe(0);
+
+    jQuery('*').add(window).add(document).each(function () {
+      var events = jQuery._data(this, 'events') || {};
+      expect(Object.keys(events).length).toBe(0);
+    });
   });
 });
